@@ -20,7 +20,6 @@
 			-webkit-touch-callout: none;
 			-webkit-user-select: none;
 			background: #e9dfc7;
-			overflow: hidden;
 		}
 		.m-read-content {
 			color: #555;
@@ -511,7 +510,7 @@
 	    <div class="m-artical-action">
 	        <div class="artical-action-mid" id="action_mid"></div>
 	    </div>
-		<div id="top-nav" class="top-nav" style="display:none">
+		<div id="top_nav" class="top-nav" style="display:none">
 			<div class="icon-back"></div>
 			<div class="nav-title">返回书架</div>
 		</div>
@@ -524,16 +523,16 @@
 		</div>
         <div class="m-button-bar">
             <ul class="u-tab">
-            	<li class="prev-button">
+            	<li class="prev_button">
             		上一章
             	</li>
-            	<li class="next-button">
+            	<li class="next_button">
             		下一章
             	</li>
             </ul>
         </div>
-        <div class="nav-pannel-bk"></div>
-        <div class="nav-pannel" id="font-container">
+        <div class="nav-pannel-bk font_container" style="display:none"></div>
+        <div class="nav-pannel font_container" id="font_container" style="display:none">
         	<div class="child-mod">
         		<span>字号</span>
         		<button id="large-font" class="font-size-button">大</button>
@@ -584,5 +583,6 @@
 <script src="js/jquery-3.1.1.js"></script>
 <script src="js/jquery.base64.js"></script>
 <script src="js/jquery.jsonp.js"></script>
+<script src="js/index.js"></script>
 </body>
 </html>
