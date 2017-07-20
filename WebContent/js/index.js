@@ -40,6 +40,7 @@ $(function() {
 	var Win = $(window);
 	var RootContainer = Dom.fiction_container;
 	var iniFontSize = Util.StorageGetter('fontSize');
+	var container = Dom.fiction_container;
 	if(!iniFontSize){
 		iniFontSize = 14;
 	}
@@ -49,9 +50,9 @@ $(function() {
 		// todo 整个项目的入口函数
 		EventHanlder();
 		var readerModle = ReaderModel();
-		var readerUI = ReaderBaseFrame();
+		var readerUI = ReaderBaseFrame(container);
 		readerModle.init(function(data){
-			readerUI.parseChapterData(data);
+			readerUI(data)
 		});
 	}
 
@@ -87,21 +88,20 @@ $(function() {
 			init: init,
 		}
 	}
-
-	function ReaderBaseFrame() {
+	function ReaderBaseFrame(container) {
 		// todo 渲染基本的UI结构 
 		function parseChapterData(jsonData){
 			var jsonObj = JSON.parse(jsonData);
-			var html = "<h4>" +jsonObj.t+ "</h4>";
-			for(var i = 0;i<jsonObj.p.length;i++){
-				html += "<p>" +jsonObj.p[i]+ "</p>";
-			}
-			return html;
-			
+			var html = '<h4>' +jsonObj.t+ '</h4>';
+		    for(var i = 0;i < jsonObj.p.length;i++){
+		    	html += '<p>' +jsonObj.p[i]+ '</p>';
+		    }	
+		    return html;
 		}
-		return function(container){
-			container.html(html);
-		};
+		return function(data){
+			container.html(parseChapterData(data));
+		}
+
 	}
 
 	function EventHanlder() {
