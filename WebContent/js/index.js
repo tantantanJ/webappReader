@@ -41,6 +41,8 @@ $(function() {
 	var RootContainer = Dom.fiction_container;
 	var iniFontSize = Util.StorageGetter('fontSize');
 	var container = Dom.fiction_container;
+	var readerModle;
+	var readerUI;
 	if(!iniFontSize){
 		iniFontSize = 14;
 	}
@@ -49,8 +51,8 @@ $(function() {
 	function main(){
 		// todo 整个项目的入口函数
 		EventHanlder();
-		var readerModle = ReaderModel();
-		var readerUI = ReaderBaseFrame(container);
+		readerModle = ReaderModel();
+		readerUI = ReaderBaseFrame(container);
 		readerModle.init(function(data){
 			readerUI(data)
 		});
@@ -59,6 +61,7 @@ $(function() {
 	function ReaderModel() {
 		// todo 实现和阅读器相关的数据交互方法
 		var chapter_id;
+		var chapterTotal;
 		var init = function(UIcallback){
 			getFictionInfo(function(){
 				getCurChapterContent(chapter_id,function(data){
@@ -68,7 +71,13 @@ $(function() {
 		};
 		var getFictionInfo = function(callback){
 			$.get('data/chapter.json',function(data){
-				chapter_id = data.chapters[0].chapter_id + 1;
+				var lastChapterId = Util.StorageGetter('lastChapterId');
+				if(!lastChapterId){
+					chapter_id = data.chapters[1].chapter_id;
+				} else {
+					chapter_id = data.chapters[lastChapterId].chapter_id;
+				}
+				chapterTotal = data.chapters.length;
 				callback && callback(chapter_id);
 			},'json')
 		};
@@ -84,8 +93,26 @@ $(function() {
 				}
 			},'json')
 		};
+		var prevChapter = function(UIcallback){
+			if(chapter_id == 0){
+				return;
+			}
+			chapter_id -= 1;
+			Util.StorageSetter('lastChapterId', chapter_id);
+			getCurChapterContent(chapter_id,UIcallback);
+		};
+		var nextChapter = function(UIcallback){
+			if(chapter_id == chapterTotal){
+				return;
+			}
+			chapter_id += 1;
+			Util.StorageSetter('lastChapterId', chapter_id);
+			getCurChapterContent(chapter_id,UIcallback);
+		};
 		return {
 			init: init,
+			prevChapter: prevChapter,
+			nextChapter: nextChapter,
 		}
 	}
 	function ReaderBaseFrame(container) {
@@ -147,6 +174,16 @@ $(function() {
 			Dom.font_container.hide();
 			Dom.font_button.removeClass('current');
 			Util.StorageSetter('fontSize',iniFontSize);
+		})
+		$('.prev_button').click(function(){
+			readerModle.prevChapter(function(data){
+				readerUI(data);
+			});
+		})
+		$('.next_button').click(function(){
+			readerModle.nextChapter(function(data){
+				readerUI(data);
+			});
 		})
 	}
 	main();
