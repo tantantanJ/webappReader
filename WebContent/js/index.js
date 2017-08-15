@@ -38,6 +38,8 @@ $(function() {
 	}
 
 	var Win = $(window);
+	var readerModle;
+	var readerUI;
 	var RootContainer = Dom.fiction_container;
 	var iniFontSize = Util.StorageGetter('fontSize');
 	var container = Dom.fiction_container;
@@ -49,9 +51,9 @@ $(function() {
 	function main(){
 		// todo 整个项目的入口函数
 		EventHanlder();
-		var readerModle = ReaderModel();
-		var readerUI = ReaderBaseFrame(container);
-		readerModle.init(function(data){
+		readerModel = ReaderModel();
+		readerUI = ReaderBaseFrame(container);
+		readerModel.init(function(data){
 			readerUI(data)
 		});
 	}
@@ -68,7 +70,11 @@ $(function() {
 		};
 		var getFictionInfo = function(callback){
 			$.get('data/chapter.json',function(data){
-				chapter_id = data.chapters[0].chapter_id + 1;
+				chapter_id = Util.StorageGetter('last_chapter_id');
+				if(chapter_id == null){
+					chapter_id = data.chapters[1].chapter_id;
+				}
+				ChapterTotal = data.chapters.length;
 				callback && callback(chapter_id);
 			},'json')
 		};
@@ -84,8 +90,28 @@ $(function() {
 				}
 			},'json')
 		};
+		var prevChapter = function(UIcallback){
+			chapter_id = parseInt(chapter_id,10);
+			if(chapter_id == 0){
+				return;
+			}
+			chapter_id -= 1;
+			getCurChapterContent(chapter_id,UIcallback);
+			Util.StorageSetter('last_chapter_id', chapter_id);
+		}
+		var nextChapter = function(UIcallback){
+			chapter_id = parseInt(chapter_id,10);
+			if(chapter_id == ChapterTotal){
+				return;
+			}
+			chapter_id += 1;
+			getCurChapterContent(chapter_id,UIcallback);
+			Util.StorageSetter('last_chapter_id', chapter_id);
+		}
 		return {
 			init: init,
+			prevChapter: prevChapter,
+			nextChapter: nextChapter
 		}
 	}
 	function ReaderBaseFrame(container) {
@@ -101,7 +127,6 @@ $(function() {
 		return function(data){
 			container.html(parseChapterData(data));
 		}
-
 	}
 
 	function EventHanlder() {
@@ -148,6 +173,18 @@ $(function() {
 			Dom.font_button.removeClass('current');
 			Util.StorageSetter('fontSize',iniFontSize);
 		})
+		
+		$('#prev_button').click(function(){
+			//TODO...获得章节的翻页数据->把数据拿出来渲染
+			readerModel.prevChapter(function(data){
+				readerUI(data);
+			});
+		});
+		$('#next_button').click(function(){
+			readerModel.nextChapter(function(data){
+				readerUI(data);
+			});
+		});
 	}
 	main();
 });
